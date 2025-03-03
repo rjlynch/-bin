@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+# Serve a file or directory over HTTP - useful for reading stuff on the iPad
+require 'webrick'
+require 'socket'
+
+# Get the file or directory to serve from command-line arguments
+path = ARGV[0] || Dir.pwd
+
+# Determine if the path is a file or directory
+if File.file?(path)
+  puts "Serving file: #{path}"
+  server = WEBrick::HTTPServer.new(Port: 8080, BindAddress: "0.0.0.0")
+
+  server.mount_proc "/" do |req, res|
+    res.body = File.read(path)
+    res.content_type = WEBrick::HTTPUtils.mime_type(path, WEBrick::HTTPUtils::DefaultMimeTypes)
+  end
+else
+  puts "Serving directory: #{path}"
+  server = WEBrick::HTTPServer.new(Port: 8080, DocumentRoot: path, BindAddress: "0.0.0.0")
+end
+
+ip = Socket.ip_address_list.detect { |addr| addr.ipv4_private? }&.ip_address || "localhost"
+puts "\e[32mListening on http://#{ip}:8080/\e[0m"
+
+trap("INT") { server.shutdown }
+server.start
+

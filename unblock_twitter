@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Unblocks twitter. Useful in conjunction with sudo cronetab
+# 0 9 * * 1-5 /Users/richardlynch/bin/block_twitter
+# 0 17 * * 1-5 /Users/richardlynch/bin/unblock_twitter
+
+BLOCKED_DOMAINS=("twitter.com" "x.com")
+HOSTS_FILE="/etc/hosts"
+
+# Remove block entries
+for domain in "${BLOCKED_DOMAINS[@]}"; do
+    sed -i '' "/$domain/d" "$HOSTS_FILE"
+done

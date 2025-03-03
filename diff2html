@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+# Pipe it a git diff and it will return a html file of the diff
+# Useful for reading diffs on the ipad in conjunction with `serve`
+# `git diff | diff2html > diff.html`
+# `serve diff.html && rm diff.html`
+
+require 'cgi'
+
+# Read diff input from STDIN
+diff = ARGF.read
+
+# Convert special characters to HTML-safe
+html_diff = CGI.escapeHTML(diff)
+
+# Apply syntax highlighting
+html_diff.gsub!(/^(\+\+\+ .+)/, '<span class="file">\1</span>')
+html_diff.gsub!(/^(\-\-\- .+)/, '<span class="file">\1</span>')
+html_diff.gsub!(/^(\+.*)$/, '<span class="addition">\1</span>')
+html_diff.gsub!(/^(\-.*)$/, '<span class="deletion">\1</span>')
+html_diff.gsub!(/^(diff --git .*)$/, '<span class="header">\1</span>')
+
+# HTML Template
+html_output = <<~HTML
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Git Diff</title>
+      <style>
+          body { font-family: monospace; background: #222; color: #eee; padding: 20px; }
+          pre { white-space: pre-wrap; word-wrap: break-word; }
+          .addition { color: #0f0; } /* Green */
+          .deletion { color: #f00; } /* Red */
+          .file { color: #08f; font-weight: bold; } /* Blue */
+          .header { color: #ff0; font-weight: bold; } /* Yellow */
+      </style>
+  </head>
+  <body>
+      <h2>Git Diff</h2>
+      <pre>#{html_diff}</pre>
+  </body>
+  </html>
+HTML
+
+# Output to STDOUT
+puts html_output

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Generate a password
+# Useful with `pass`
+# `:r !gpass`
+cat /usr/share/dict/words | shuf | head -n 4 | xargs | sed -E "s/ /-/g"

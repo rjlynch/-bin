@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Blocks twitter. Useful in conjunction with sudo cronetab
+# 0 9 * * 1-5 /Users/richardlynch/bin/block_twitter
+# 0 17 * * 1-5 /Users/richardlynch/bin/unblock_twitter
+
+BLOCKED_DOMAINS=("twitter.com" "x.com")
+HOSTS_FILE="/etc/hosts"
+BLOCK_ENTRY="127.0.0.1"
+
+# Add block entries if they are not already present
+for domain in "${BLOCKED_DOMAINS[@]}"; do
+    if ! grep -q "$domain" "$HOSTS_FILE"; then
+        echo "$BLOCK_ENTRY $domain" >> "$HOSTS_FILE"
+        echo "$BLOCK_ENTRY www.$domain" >> "$HOSTS_FILE"
+    fi
+done
