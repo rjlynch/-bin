@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# Concatenates files with file names and line numbers.
+# Use like
+#
+# `ls | grep recurrent | grep -v pth | grep -v test | context | pbcopy`
+#
+# or
+#
+# `context file_1.txt file_2.txt | pbcopy`
+
+# Read filenames from arguments or stdin
+if [ "$#" -gt 0 ]; then
+  files=("$@")
+else
+  # Read from stdin, line by line
+  mapfile -t files < /dev/stdin
+fi
+
+# Output with headers and footers
+for f in "${files[@]}"; do
+  [ -f "$f" ] || continue  # Skip if not a regular file
+  echo "=== FILE: $f ==="
+  awk '{ printf "%6d  %s\n", NR, $0 }' "$f"
+  echo "--- END OF $f ---"
+  echo
+done
